@@ -181,19 +181,29 @@ ft <- flextable(table2_paper) |>
                  colwidths = c(1, 2, 7), top = TRUE) |>
   add_header_row(values = c("", "High school share, 15–20", "Enrolled, 15–30"),
                  colwidths = c(1, 8, 1), top = TRUE) |>
-  # Title above the table, as in Table 1
-  set_caption(caption = "Table 2: Islamic mayor in 1994 and high school education in 2000") |>
+  # Title above the table, plain bold Times New Roman
+  set_caption(
+    caption = as_paragraph(as_chunk(
+      "Table 2: Islamic mayor in 1994 and high school education in 2000",
+      props = fp_text_default(font.family = "Times New Roman",
+                              font.size = 10, bold = TRUE))),
+    fp_p = officer::fp_par(text.align = "left", padding.bottom = 4),
+    align_with_table = FALSE) |>
   theme_booktabs() |>
+  # Thin lines under the outcome row and the OLS/RD row
+  hline(i = 1:2, j = 2:10, border = fp_border_default(width = 0.5), part = "header") |>
   add_footer_lines(notes) |>
   align(j = 2:10, align = "center", part = "all") |>
   bold(i = ~ label %in% panel_names, j = 1) |>
   font(fontname = "Times New Roman", part = "all") |>
   fontsize(size = 9, part = "all") |>
-  # Notes one size smaller, as in Table 1
+  # Notes one size smaller
   fontsize(size = 8, part = "footer") |>
   padding(padding.top = 1, padding.bottom = 1, part = "body") |>
   # Extra space above Panel B and Panel C headings
   padding(i = ~ label %in% panel_names[2:3], padding.top = 8, part = "body") |>
+  # Tight header rows
+  padding(padding.top = 1, padding.bottom = 1, part = "header") |>
   autofit()
 
 save_as_docx(ft, path = "output/tables/table2.docx")

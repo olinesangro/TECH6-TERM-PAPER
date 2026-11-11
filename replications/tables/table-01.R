@@ -6,8 +6,8 @@ source("replications/setup.R")
 nrow(df_matched)
 
 # Readable row labels, in the same order as vars from the setup-file
-labels <- c("Female high school share, age 15-20",
-            "Male high school share, age 15-20",
+labels <- c("Female high school share, age 15–20",
+            "Male high school share, age 15–20",
             "Islamic mayor in 1994",
             "Islamic vote share 1994",
             "Number of parties receiving votes 1994",
@@ -60,7 +60,6 @@ table1 <- table1 |>
 
 
 # Fixing the paper layout
-
 # Odd rows with means, and the difference with stars
 mean_rows <- table1 |>
   transmute(row     = 2 * row_number() - 1,
@@ -129,9 +128,17 @@ ft <- flextable(table1_paper) |>
   add_header_row(values = c("", "(1)", "(2)", "(3)", "(4)"),
                  colwidths = rep(1, 5), top = FALSE) |>
   add_footer_lines(notes) |>
-  # Title above the table
-  set_caption(caption = "Table 1: Descriptive statistics") |>
+  # Title above the table, plain bold Times New Roman
+  set_caption(
+    caption = as_paragraph(as_chunk(
+      "Table 1: Descriptive statistics",
+      props = fp_text_default(font.family = "Times New Roman",
+                              font.size = 10, bold = TRUE))),
+    fp_p = officer::fp_par(text.align = "left", padding.bottom = 4),
+    align_with_table = FALSE) |>
   theme_booktabs() |>
+  # Thin line under the column names
+  hline(i = 1, j = 2:5, border = fp_border_default(width = 0.5), part = "header") |>
   align(j = 2:5, align = "center", part = "all") |>
   # Fonts are set after the footer is added, so the notes get Times New Roman
   font(fontname = "Times New Roman", part = "all") |>
@@ -139,5 +146,7 @@ ft <- flextable(table1_paper) |>
   fontsize(size = 8, part = "footer") |>
   italic(i = ~ label %in% group_names, j = 1, part = "body") |>
   padding(padding.top = 1, padding.bottom = 1, part = "body") |>
+  # Tight header rows, as in Table 7
+  padding(padding.top = 1, padding.bottom = 1, part = "header") |>
   autofit()
 save_as_docx(ft, path = "output/tables/table1.docx")

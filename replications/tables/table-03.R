@@ -111,9 +111,17 @@ ft <- flextable(table3_paper) |>
   # Spanner over the bandwidth columns
   add_header_row(values = c("", "Bandwidth"),
                  colwidths = c(1, length(bandwidths)), top = TRUE) |>
-  # Title above the table, as in Tables 1 and 2
-  set_caption(caption = "Table 3: Robustness to bandwidth and control function") |>
+  # Title above the table
+  set_caption(
+    caption = as_paragraph(as_chunk(
+      "Table 3: Robustness to bandwidth and control function",
+      props = fp_text_default(font.family = "Times New Roman",
+                              font.size = 10, bold = TRUE))),
+    fp_p = officer::fp_par(text.align = "left", padding.bottom = 4),
+    align_with_table = FALSE) |>
   theme_booktabs() |>
+  # Thin line under the "Bandwidth" spanner
+  hline(i = 1, j = 2:6, border = fp_border_default(width = 0.5), part = "header") |>
   add_footer_lines(notes) |>
   align(j = 2:6, align = "center", part = "all") |>
   bold(i = ~ label %in% c("Panel A: Women", "Panel B: Men"), j = 1) |>
@@ -125,5 +133,7 @@ ft <- flextable(table3_paper) |>
   # Extra space above Panel B and above each Observations row
   padding(i = ~ label %in% c("Panel B: Men", "Observations"),
           padding.top = 6, part = "body") |>
+  # Tight header rows
+  padding(padding.top = 1, padding.bottom = 1, part = "header") |>
   autofit()
 save_as_docx(ft, path = "output/tables/table3.docx")
