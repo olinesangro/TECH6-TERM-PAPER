@@ -21,8 +21,8 @@ labels <- c("Female high school share, age 15-20",
             "Sub-metro center")
 
 # The two groups we compare
-islamic <- df_matched |> filter(i94 == 1)    # Islamic mayor in 1994
-secular <- df_matched |> filter(i94 == 0)    # secular mayor
+islamic <- df_matched |> filter(i94 == 1)   
+secular <- df_matched |> filter(i94 == 0)   
 
 # sapply() runs mean/sd on every column in vars
 table1 <- tibble(
