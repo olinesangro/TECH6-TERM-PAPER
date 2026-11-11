@@ -58,7 +58,9 @@ table1 <- table1 |>
          p    = balance[, "p"])
 
 
+
 # Fixing the paper layout
+
 # Odd rows with means, and the difference with stars
 mean_rows <- table1 |>
   transmute(row     = 2 * row_number() - 1,
@@ -69,13 +71,14 @@ mean_rows <- table1 |>
             diff    = paste0(f3(diff), stars(p)))
 
 # Even rows with SDs, and the SE of the difference
+# The SE is left blank when it is zero (the Islamic mayor row)
 sd_rows <- table1 |>
   transmute(row     = 2 * row_number(),
             label   = "",
             all     = paste0("(", f3(all_sd), ")"),
             islamic = paste0("(", f3(islamic_sd), ")"),
             secular = paste0("(", f3(secular_sd), ")"),
-            diff    = paste0("(", f3(se), ")"))
+            diff    = if_else(se > 0, paste0("(", f3(se), ")"), ""))
 
 # Shows the number of towns in each group
 obs_row <- tibble(row     = 2 * nrow(table1) + 1,
@@ -85,16 +88,35 @@ obs_row <- tibble(row     = 2 * nrow(table1) + 1,
                   secular = formatC(nrow(secular),    format = "d", big.mark = ","),
                   diff    = "")
 
-# Stack the three pieces, sort so each mean sits above its SD
-table1_paper <- bind_rows(mean_rows, sd_rows, obs_row) |>
+# Group headings. The half-numbers place each heading
+# just above the first row of its group
+group_names <- c("Outcomes", "Treatment", "Covariates")
+group_rows <- tibble(row     = c(0.5, 4.5, 6.5),
+                     label   = group_names,
+                     all = "", islamic = "", secular = "", diff = "")
+
+# Stack the pieces, sort so each mean sits above its SD
+table1_paper <- bind_rows(group_rows, mean_rows, sd_rows, obs_row) |>
   arrange(row) |>
   select(-row)
 
 print(table1_paper, n = Inf, width = Inf)
 
 
-# Saving the table, as a csv file, and making it into a word format, 
-# so we can make prefered table changes later on. 
+# Notes describing the sample and the two stars that differ
+notes <- paste(
+  "Notes: Sample of", formatC(nrow(df_matched), format = "d", big.mark = ","),
+  "municipalities with a 1994 mayoral election result and non-missing values on",
+  "all variables in the table. Columns (1)–(3) report means with standard",
+  "deviations in parentheses. Column (4) reports the difference in means",
+  "(Islamic − secular) with classical standard errors in parentheses. Stars",
+  "are based on these standard errors and differ from the original table for",
+  "number of parties (** in Meyersson, 2014) and district center (no star in the",
+  "original). *** p<0.01, ** p<0.05, * p<0.10."
+)
+
+# Saving the table, as a csv file, and making it into a word format,
+# so we can make prefered table changes later on.
 write.csv(table1_paper, "output/tables/table1.csv", row.names = FALSE)
 
 ft <- flextable(table1_paper) |>
@@ -103,14 +125,19 @@ ft <- flextable(table1_paper) |>
                     islamic = "Islamic mayor",
                     secular = "Secular mayor",
                     diff    = "Difference") |>
-  theme_booktabs() |>                                         
-  align(j = 2:5, align = "center", part = "all") |>           
+  # Column numbers under the column names
+  add_header_row(values = c("", "(1)", "(2)", "(3)", "(4)"),
+                 colwidths = rep(1, 5), top = FALSE) |>
+  add_footer_lines(notes) |>
+  # Title above the table
+  set_caption(caption = "Table 1: Descriptive statistics") |>
+  theme_booktabs() |>
+  align(j = 2:5, align = "center", part = "all") |>
+  # Fonts are set after the footer is added, so the notes get Times New Roman
   font(fontname = "Times New Roman", part = "all") |>
   fontsize(size = 9, part = "all") |>
-  padding(padding.top = 1, padding.bottom = 1, part = "body") |>   # tighter rows
-  add_footer_lines(paste(
-    "Notes: Columns 1-3 report means with standard deviations in parentheses.",
-    "Column 4 reports the difference in means (Islamic - secular) with classical",
-    "standard errors in parentheses. *** p<0.01, ** p<0.05, * p<0.10.")) |>
+  fontsize(size = 8, part = "footer") |>
+  italic(i = ~ label %in% group_names, j = 1, part = "body") |>
+  padding(padding.top = 1, padding.bottom = 1, part = "body") |>
   autofit()
 save_as_docx(ft, path = "output/tables/table1.docx")
