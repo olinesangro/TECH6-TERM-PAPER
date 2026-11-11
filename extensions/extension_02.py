@@ -1,5 +1,5 @@
 #--------------------------------------------------------------
-# EXTENSION 1: Machine Learning
+# EXTENSION 2: Machine Learning
 #--------------------------------------------------------------
 
 # Random state used for sample splitting (train/test, cross-validation) and other RNGs
