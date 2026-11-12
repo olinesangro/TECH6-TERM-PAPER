@@ -84,6 +84,8 @@ def plot_histograms(df_data, title=None):
 
     if title is not None:
         fig.suptitle(title)
+    
+    plt.show()
 
 
 def plot_scatterplots(y_var, df_data):
@@ -137,7 +139,8 @@ def plot_scatterplots(y_var, df_data):
 
     for ax in axes[nplots:]:
         ax.set_visible(False)
-
+    
+    plt.show()
 
 # Training sample (secular towns only) for exploration
 df_train = df.loc[secular, [target] + vars]
@@ -206,6 +209,8 @@ def plot_ols_validation_curve(ols_cv):
     ax.set_ylabel('RMSE in female HS completion share')
     ax.set_title('Validation curve for polynomial degree')
     ax.legend()
+
+    plt.show()
 
 
 # Number of polynomial features generated at each degree
@@ -294,6 +299,7 @@ def plot_validation_curves(search, model_name):
     ax.set_title(f'Validation curve for {model_name}')
     ax.legend()
 
+    plt.show()
 
 # Ridge cross-validation
 from sklearn.linear_model import Ridge
@@ -410,20 +416,18 @@ print(df_cv.to_string(float_format='{:.5g}'.format))
 # Predict the counterfactual outcome: what each Islamic town's female
 # HS completion would have been without an Islamic mayor, using the
 # model trained only on secular towns
-pred_islamic = lasso_cv.best_estimator_.predict(X_islamic)
+pred_islamic_ols = ols_cv.best_estimator_.predict(X_islamic)
+pred_islamic_ridge = ridge_cv.best_estimator_.predict(X_islamic)
+pred_islamic_lasso = lasso_cv.best_estimator_.predict(X_islamic)
 
 # The actual, observed outcome for those same towns
 y_islamic = df.loc[~secular, target]
 
-# Estimated effect per town: actual outcome minus predicted counterfactual
-effect = y_islamic.values - pred_islamic
+# Estimated effect: actual outcome minus predicted counterfactual
+effect_ols = y_islamic.values - pred_islamic_ols
+effect_ridge = y_islamic.values - pred_islamic_ridge
+effect_lasso = y_islamic.values - pred_islamic_lasso
 
-print(f'Average estimated effect of an Islamic mayor: {effect.mean():.4f}')
-print(f'Median estimated effect: {np.median(effect):.4f}')
-
-pred_islamic_ols = ols_cv.best_estimator_.predict(X_islamic)
-pred_islamic_ridge = ridge_cv.best_estimator_.predict(X_islamic)
-
-print(f'OLS effect:   {(y_islamic.values - pred_islamic_ols).mean():.4f}')
-print(f'Ridge effect: {(y_islamic.values - pred_islamic_ridge).mean():.4f}')
-print(f'Lasso effect: {effect.mean():.4f}')
+print(f'OLS effect:     mean = {effect_ols.mean():.4f},   median = {np.median(effect_ols):.4f}')
+print(f'Ridge effect:   mean = {effect_ridge.mean():.4f},   median = {np.median(effect_ridge):.4f}')
+print(f'Lasso effect:   mean = {effect_lasso.mean():.4f},   median = {np.median(effect_lasso):.4f}')
