@@ -138,34 +138,72 @@ blank_row <- function(txt) {
 
 panelC_row <- matrix(f3(panelC), nrow = 1, dimnames = list(NULL, names(panel_women)))
 
+# Panel C gets its own heading row
+panel_names <- c("Panel A: Women", "Panel B: Men",
+                 "Panel C: Difference women − men")
+
 table2_paper <- bind_rows(
-  blank_row("Panel A: Women"),
+  blank_row(panel_names[1]),
   panel_rows(panel_women, bw_used(h_ik["women"], h_ik["enr_women"])),
-  blank_row("Panel B: Men"),
+  blank_row(panel_names[2]),
   panel_rows(panel_men,   bw_used(h_ik["men"],   h_ik["enr_men"])),
-  tibble(label = "Panel C: p-value, women = men", as_tibble(panelC_row))
+  blank_row(panel_names[3]),
+  tibble(label = "p-value, women = men", as_tibble(panelC_row))
 )
 print(table2_paper, n = Inf, width = Inf)
 
 
-# Saving the table as csv, then as a word-format to change later
+# Notes on the table, where the bandwidths come
+# from, and a Panel C description that matches how we computed it
+notes <- paste(
+  "Notes: The outcome is the share of 15–20 year olds with high school education",
+  "in 2000 (column (9): share of 15–30 year olds enrolled in education).",
+  "Columns (1)–(2) are OLS on all municipalities; columns (3)–(9) are RD",
+  "estimates with a separate control function on each side of the cutoff.",
+  "Bandwidths in columns (3), (4) and (7)–(9) are the Imbens–Kalyanaraman",
+  "bandwidths reported in the paper; columns (5) and (6) halve and double them.",
+  "Covariates: Islamic vote share, number of parties, log population, population",
+  "shares below 19 and above 60, gender ratio, household size, municipality type",
+  "dummies and province fixed effects. Standard errors clustered by province in",
+  "parentheses. Panel C: p-values for equal effects for women and men, computed as",
+  "in the paper's SUR test. *** p<0.01, ** p<0.05, * p<0.10."
+)
+
+# Saving the table as csv
 write.csv(table2_paper, "output/tables/table2.csv", row.names = FALSE)
 
+#Formatting the tabel into a word-format, so changes can be made later on
 ft <- flextable(table2_paper) |>
   set_header_labels(label = "") |>
+  # Header rows showing method (OLS/RD) and outcome above the
+  # column numbers. Each top = TRUE row goes above the previous one.
+  add_header_row(values = c("", "OLS", "RD"),
+                 colwidths = c(1, 2, 7), top = TRUE) |>
+  add_header_row(values = c("", "High school share, 15–20", "Enrolled, 15–30"),
+                 colwidths = c(1, 8, 1), top = TRUE) |>
+  # Title above the table, plain bold Times New Roman
+  set_caption(
+    caption = as_paragraph(as_chunk(
+      "Table 2: Islamic mayor in 1994 and high school education in 2000",
+      props = fp_text_default(font.family = "Times New Roman",
+                              font.size = 10, bold = TRUE))),
+    fp_p = officer::fp_par(text.align = "left", padding.bottom = 4),
+    align_with_table = FALSE) |>
   theme_booktabs() |>
-  add_footer_lines(paste(
-    "Notes: Outcome is the share of 15-20 year olds with high school education in 2000",
-    "(col 9: share of 15-30 year olds enrolled). Covariates: Islamic vote share, number of",
-    "parties, log population, population shares below 19 and above 60, gender ratio, household",
-    "size, municipality type dummies and province fixed effects. Standard errors clustered by",
-    "province in parentheses. Panel C: SUR p-values for equal effects for women and men.",
-    "*** p<0.01, ** p<0.05, * p<0.10.")) |>
+  # Thin lines under the outcome row and the OLS/RD row
+  hline(i = 1:2, j = 2:10, border = fp_border_default(width = 0.5), part = "header") |>
+  add_footer_lines(notes) |>
   align(j = 2:10, align = "center", part = "all") |>
-  bold(i = ~ label %in% c("Panel A: Women", "Panel B: Men"), j = 1) |>
+  bold(i = ~ label %in% panel_names, j = 1) |>
   font(fontname = "Times New Roman", part = "all") |>
   fontsize(size = 9, part = "all") |>
+  # Notes one size smaller
+  fontsize(size = 8, part = "footer") |>
   padding(padding.top = 1, padding.bottom = 1, part = "body") |>
+  # Extra space above Panel B and Panel C headings
+  padding(i = ~ label %in% panel_names[2:3], padding.top = 8, part = "body") |>
+  # Tight header rows
+  padding(padding.top = 1, padding.bottom = 1, part = "header") |>
   autofit()
 
 save_as_docx(ft, path = "output/tables/table2.docx")

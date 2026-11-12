@@ -1,11 +1,8 @@
 #-------------------------------------------------------------------------------
 # TABLE 3: RD estimates across bandwidths and polynomial orders
 #-------------------------------------------------------------------------------
-source("replications/setup.R")
 
-# Same RD setup as Table 2: iwm94 is the win margin, i94 the Islamic mayor dummy,
-# outcome is the high school share 15-20 for women and men.
-# Controls are the same as in Table 2 (..ctrl), since that is what matches the paper
+source("replications/setup.R")
 
 # Samples
 samples <- list(women = df_matched |> mutate(y = hischshr1520f),
@@ -28,7 +25,7 @@ fmls <- list(
 
 # Keep towns inside the bandwidth and divide the margin by h, so it goes from -1 to 1.
 # Otherwise x^3 and x^4 get tiny in small windows and fixest drops them.
-# This does not change the estimate at the cutoff. fmls[[p + 1]] since p starts at 0
+# This does not change the estimate at the cutoff.
 rd_cell <- function(dat, p, h) {
   dat <- dat |> filter(abs(iwm94) < h) |> mutate(iwm94 = iwm94 / h)
   feols(fmls[[p + 1]], data = dat, cluster = ~pcode)
@@ -60,32 +57,6 @@ results <- specs |>
          n    = sapply(models, nobs))
 
 print(results, n = Inf)
-
-
-# Compare with the paper (same order as specs)
-paper_t3 <- specs |>
-  mutate(est_paper = c(
-    # Women
-    0.012, 0.015, 0.018, 0.025, 0.018,    # None
-    0.014, 0.021, 0.025, 0.028, 0.039,    # Linear
-    0.027, 0.030, 0.033, 0.032, 0.051,    # Quadratic
-    0.031, 0.026, 0.036, 0.057, 0.054,    # Cubic
-    0.030, 0.032, 0.044, 0.067, 0.028,    # Quartic
-    # Men
-    0.009, 0.011, 0.012, 0.015, 0.010,    # None
-    0.010, 0.014, 0.012, 0.011, 0.017,    # Linear
-    0.016, 0.016, 0.019, 0.024, 0.048,    # Quadratic
-    0.017, 0.016, 0.025, 0.038, 0.048,    # Cubic
-    0.017, 0.028, 0.026, 0.071, 0.035     # Quartic
-  ))
-
-compare <- results |>
-  left_join(paper_t3, by = c("sex", "p", "h")) |>
-  mutate(diff = round(est, 3) - est_paper)
-
-# The cells that dont match should be empty
-compare |> filter(abs(diff) > 0.001)
-
 
 # Fixing the table layout
 panel_rows <- function(s) {
@@ -122,19 +93,47 @@ print(table3_paper, n = Inf, width = Inf)
 # Saving the table as csv and word-format
 write.csv(table3_paper, "output/tables/table3.csv", row.names = FALSE)
 
+# Notes say which coefficient is shown, that N is the same for
+# women and men, and use en dashes
+notes <- paste(
+  "Notes: Each cell reports the coefficient on Islamic mayor in 1994 from a separate",
+  "RD regression of the share of 15–20 year olds with high school education in 2000.",
+  "Columns vary the bandwidth h and rows vary the order of the control function in the",
+  "win margin, estimated separately on each side of the cutoff. All regressions include",
+  "the covariates and province fixed effects from Table 2. Because the bandwidths are",
+  "fixed, the number of observations is the same for women and men. Standard errors",
+  "clustered by province in parentheses. *** p<0.01, ** p<0.05, * p<0.10."
+)
+
 ft <- flextable(table3_paper) |>
-  set_header_labels(label = "") |>
+  # The label column says what the rows are
+  set_header_labels(label = "Control function") |>
+  # Spanner over the bandwidth columns
+  add_header_row(values = c("", "Bandwidth"),
+                 colwidths = c(1, length(bandwidths)), top = TRUE) |>
+  # Title above the table
+  set_caption(
+    caption = as_paragraph(as_chunk(
+      "Table 3: Robustness to bandwidth and control function",
+      props = fp_text_default(font.family = "Times New Roman",
+                              font.size = 10, bold = TRUE))),
+    fp_p = officer::fp_par(text.align = "left", padding.bottom = 4),
+    align_with_table = FALSE) |>
   theme_booktabs() |>
-  add_footer_lines(paste(
-    "Notes: Outcome is the share of 15-20 year olds with high school education in 2000.",
-    "Each cell is a separate RD regression with the given bandwidth and order of the",
-    "control function in the win margin, estimated separately on each side of the cutoff.",
-    "All regressions include the covariates and province fixed effects from Table 2.",
-    "Standard errors clustered by province in parentheses. *** p<0.01, ** p<0.05, * p<0.10.")) |>
+  # Thin line under the "Bandwidth" spanner
+  hline(i = 1, j = 2:6, border = fp_border_default(width = 0.5), part = "header") |>
+  add_footer_lines(notes) |>
   align(j = 2:6, align = "center", part = "all") |>
   bold(i = ~ label %in% c("Panel A: Women", "Panel B: Men"), j = 1) |>
   font(fontname = "Times New Roman", part = "all") |>
   fontsize(size = 9, part = "all") |>
+  # Notes one size smaller,
+  fontsize(size = 8, part = "footer") |>
   padding(padding.top = 1, padding.bottom = 1, part = "body") |>
+  # Extra space above Panel B and above each Observations row
+  padding(i = ~ label %in% c("Panel B: Men", "Observations"),
+          padding.top = 6, part = "body") |>
+  # Tight header rows
+  padding(padding.top = 1, padding.bottom = 1, part = "header") |>
   autofit()
 save_as_docx(ft, path = "output/tables/table3.docx")
