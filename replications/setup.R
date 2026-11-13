@@ -27,7 +27,8 @@ vars <- c("hischshr1520f", "hischshr1520m",
           "i94",
           "vshr_islam1994", "partycount",
           "lpop1994", "ageshr19", "ageshr60", "sexr", "shhs",
-          "merkezi", "merkezp", "subbuyuk")
+          "merkezi", "merkezp", "subbuyuk", "buyuk",
+          paste0("pd_", 1:81))
 df_matched <- df |> filter(complete.cases(df[, vars]))
 
 
