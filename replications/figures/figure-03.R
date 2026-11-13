@@ -10,7 +10,8 @@ source("replications/setup.R")
 # Build the smoother
 local_linear <- function(x, y, grid, bw) {
   out <- lapply(grid, function(g) {
-    w <- pmax(0, 1 - abs(x - g) / bw)
+    u <- (x - g) / bw
+    w <- ifelse(abs(u) <= 1, 0.75 * (1 - u^2), 0)
     keep <- w > 0
     dat  <- tibble(xc = x[keep] - g, y = y[keep], w = w[keep])
     mod  <- lm_robust(y ~ xc, data = dat, weights = w)
@@ -21,12 +22,11 @@ local_linear <- function(x, y, grid, bw) {
 
 # Building dots and smoother for one single covariate
 build_panel <- function(var, label) {
-  dat <- df_matched |> filter(!is.na(iwm94), !is.na(.data[[var]]))
+  dat <- df_matched |> 
+    filter(!is.na(iwm94), !is.na(.data[[var]])) |>
+    filter(abs(iwm94) < 0.3)
   
-  # Picking bandwidth, based on course's methods
-  rd_fit  <- rdrobust(dat[[var]], dat$iwm94, c = 0)
-  h_left  <- rd_fit$bws["h", "left"]
-  h_right <- rd_fit$bws["h", "right"]
+  bw <- 0.06
   
   dots <- dat |>
     mutate(bin = floor(iwm94 / 0.08) * 0.08 + 0.08 / 2) |>
@@ -37,16 +37,16 @@ build_panel <- function(var, label) {
   left  <- dat |> filter(iwm94 < 0)
   right <- dat |> filter(iwm94 >= 0)
   
-  grid_left  <- seq(max(min(left$iwm94),  -0.3), 0, length.out = 100)
-  grid_right <- seq(0, min(max(right$iwm94), 0.3), length.out = 100)
+  grid_left  <- seq(max(min(left$iwm94),  -0.3), 0, length.out = 50)
+  grid_right <- seq(0, min(max(right$iwm94), 0.3), length.out = 50)
   
   # Fitting dots on each side of the cutoff, not one line for all points
-  fit_left  <- local_linear(left$iwm94,  left[[var]],  grid_left,  h_left)  |> mutate(side = "left")
-  fit_right <- local_linear(right$iwm94, right[[var]], grid_right, h_right) |> mutate(side = "right")
+  fit_left  <- local_linear(left$iwm94,  left[[var]],  grid_left,  bw)  |> mutate(side = "left")
+  fit_right <- local_linear(right$iwm94, right[[var]], grid_right, bw) |> mutate(side = "right")
   
   # Build CI
   fits <- bind_rows(fit_left, fit_right) |>
-    mutate(lo = fit - 1.96 * se, hi = fit + 1.96 * se, panel = label)
+    mutate(lo = fit - 2 * se, hi = fit + 2 * se, panel = label)
   
   list(dots = dots, fits = fits)
 }
@@ -103,7 +103,7 @@ make_panel <- function(lbl, show_x) {
     geom_line(data = f, aes(x = x, y = hi,  group = side), color = "grey60", linewidth = 0.4) +
     geom_vline(xintercept = 0, linetype = "dashed", color = "grey70", linewidth = 0.3) +
     base_theme +
-    scale_x_continuous(limits = c(-0.31, 0.31), breaks = seq(-0.25, 0.25, by = 0.25),
+    scale_x_continuous(limits = c(-0.3, 0.3), breaks = seq(-0.25, 0.25, by = 0.25),
                        labels = scales::label_number(drop0trailing = TRUE)) +
     scale_y_continuous(limits = c(spec$ymin, spec$ymax),
                        breaks = seq(spec$ymin, spec$ymax, by = spec$ystep),
