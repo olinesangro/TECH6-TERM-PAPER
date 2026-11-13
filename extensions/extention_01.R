@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------------
 source("replications/setup.R")
 
-df <- df |>
+df_ext <- df |>
   zap_labels() |>
   filter(!is.na(iwm94), !is.na(hischshr1520f))
 
@@ -12,7 +12,7 @@ ctrl_vars <- c("vshr_islam1994", "partycount", "lpop1994",
                "ageshr19", "ageshr60", "sexr", "shhs",
                "merkezi", "merkezp", "subbuyuk", "buyuk")
 
-df_cc <- df |>
+df_cc <- df_ext |>
   drop_na(all_of(ctrl_vars))
 
 h <- 0.24
