@@ -9,13 +9,13 @@ df_ext <- df |>
 
 # Full control set (matches Table I/II)
 ctrl_vars <- c("vshr_islam1994", "partycount", "lpop1994",
-               "ageshr19", "ageshr60", "sexr", "shhs",
                "merkezi", "merkezp", "subbuyuk", "buyuk")
 
 df_cc <- df_ext |>
   drop_na(all_of(ctrl_vars))
 
-h <- 0.24
+print(c(nrow(df), nrow(df_cc)))
+h <- 0.2398
 
 
 # By-hand diagnostic (does margin still predict education within each side of 
