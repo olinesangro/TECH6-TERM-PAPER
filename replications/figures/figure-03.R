@@ -133,6 +133,6 @@ right_col <- wrap_plots(right_plots, ncol = 1)
 
 # Places left and right column side by side
 fig3 <- left_col | right_col
-fig3
+
 # Save the figure in the output folder
-#ggsave("output/figures/figure3.png", plot = fig3, width = 8, height = 8, dpi = 300)
+ggsave("output/figures/figure3.png", plot = fig3, width = 8, height = 8, dpi = 300)
