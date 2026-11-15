@@ -13,35 +13,30 @@ This repository is the replication package for our TECH6 term paper. It contains
 - **Replication (R):** Tables 1, 2, 3 and 7 and Figures 1, 2, 3 and 4 from the main text of
   Meyersson (2014), following the paper's own specifications: its controls, province fixed
   effects, standard errors clustered by province, and its bandwidths.
-- **Extensions:** two extensions, one in R and on in Python.
-- **One command:** source("run_all.R") regenerates every table and figure from `regdata0.dta`.
+- **Extensions:** two extensions, one in R and one in Python.
+- **One command:** source("run_all.R") regenerates every table and figure from `regdata0.dta`. The extensions are run separately.
 
 The write-up (PDF) discusses the results. This README explains how to reproduce them.
 
 ## Quick start
 
 1. Clone or download this repository.
-2. Place `regdata0.dta` in the project root folder, next to `run_all.R`.
-3. Run: source("run_all.R")
+2. Open TECH6-TERM-PAPER.Rproj in RStudio.
+3. Place regdata0.dta in the project root folder, next to run_all.R.
+4. Run: source("run_all.R")
 
 When the run is finished, the console prints
 `Done: tables are in output/tables, figures in output/figures`.
-Tables are saved to `output/tables/` and figures to `output/figures/`. The folders are created
-automatically if they do not exist.
+Tables are saved to `output/tables/` and figures to `output/figures/`. The folders are created automatically if they do not exist.
 
 ## Good to know before running
 
-- **Working directory:** all paths are relative to the project root. If the scripts cannot find
-  `regdata0.dta` or `Replications/setup.R`, the project was most likely not opened through the
-  `.Rproj` file. In RStudio, use *Session → Set Working Directory → To Project Directory*.
-- **Running single scripts:** every script loads `Replications/setup.R` itself, so any table or
-  figure can be run on its own without running `run_all.R` first.
+- **Working directory:** all paths are relative to the project root. If the scripts cannot find `regdata0.dta` or `Replications/setup.R`, the project was most likely not opened through the `.Rproj` file. In RStudio, use *Session → Set Working Directory → To Project Directory*.
+- **Running single scripts:** every script loads `Replications/setup.R` itself, so any table or figure can be run on its own without running `run_all.R` first.
 - **Python extension:** Extension 2 is written in Python. This requires a working Python installation with the packages listed.
-- **Runtime:** Figures 3 and 4 take the longest, because the bandwidth and the local linear fits
-  are computed separately for every panel.
+- **Runtime:** Figures 3 and 4 take the longest, because the bandwidth and the local linear fits are computed separately for every panel.
 - **Warnings:** the console shows some warnings from `ggplot2` ("Removed rows containing
-  missing values"). These come from observations outside the axis limits, which were set to
-  match the paper's figures, and do not affect the results.
+  missing values"). These come from observations outside the axis limits, which were set to match the paper's figures, and do not affect the results.
 
 ## Data
 
@@ -51,16 +46,22 @@ automatically if they do not exist.
 
 ## Requirements
 
-- R [version] and RStudio [version]
+- R 4.6.1 and RStudio 2026.09.0 (build 174).
 - R packages: `tidyverse`, `estimatr`, `fixest`, `causaldata`, `MatchIt`, `cobalt`,
   `rdrobust`, `rddensity`, `haven`, `patchwork`, `flextable`, `reticulate`
-- Python [version] with [packages] (Extension 2 only)
+- Python 3.12.4 with pandas, numpy, matplotlib, scikit-learn (Extension 2 only)
 
 Install the R packages once with:
 
 ```r
 install.packages(c("tidyverse", "estimatr", "fixest", "causaldata", "MatchIt", "cobalt",
                    "rdrobust", "rddensity", "haven", "patchwork", "flextable", "reticulate"))
+```
+Install the Python packages with:
+
+```
+pip install pandas numpy matplotlib scikit-learn
+
 ```
 
 The results were produced on macOS. Exact package versions are listed
@@ -69,8 +70,8 @@ under Software environment at the bottom of this file.
 ## Repository structure
 
 ```
-TECH6-EXAM-PROJECT/
-├── TECH6-EXAM-PROJECT.Rproj   # RStudio project; open this first
+TECH6-TERM-PAPER/
+├── TECH6-TERM-PAPER.Rproj     # RStudio project; open this first
 ├── run_all.R                  # One command that regenerates all results
 ├── regdata0.dta               # Data 
 ├── README.md
@@ -86,28 +87,23 @@ TECH6-EXAM-PROJECT/
     └── figures/               # Generated figures
 ```
 
-`setup.R` contains everything the scripts have in common: it loads the packages and the data,
-builds the province identifier for the province fixed effects, defines the analysis sample
-(`df_matched`) and the paper's control set, and holds the helper functions used by several
-scripts (number formatting, significance stars, and the local linear smoother used in the RD
-plots in Figures 3 and 4). Each step is defined in one place, so every table and figure uses
-the same sample and the same specification.
+`setup.R` contains everything the scripts have in common: it loads the packages and the data, builds the province identifier for the province fixed effects, defines the analysis sample (`df_matched`) and the paper's control set, and holds the helper functions used by several scripts (number formatting, significance stars, and the local linear smoother used in the RD plots in Figures 3 and 4). Each step is defined in one place, so every table and figure uses the same sample and the same specification.
 
 ## Output map
 
 | Result | Content | Script | Output file | Write-up |
 |--------|---------|--------|-------------|----------|
-| Table 1 | Descriptive statistics | `Replications/Tables/table-01.R` | `output/tables/[file]` | Section [x] |
-| Table 2 | [content] | `Replications/Tables/table-02.R` | `output/tables/[file]` | Section [x] |
-| Table 3 | [content] | `Replications/Tables/table-03.R` | `output/tables/[file]` | Section [x] |
-| Table 7 | [content] | `Replications/Tables/table-07.R` | `output/tables/[file]` | Section [x] |
-| Figure 1 | Islamic win margin and Islamic vote share in 1994 | `Replications/Figures/figure-01.R` | `output/figures/figure1.png` | Section [x] |
-| Figure 2a | Global histogram of the Islamic win margin | `Replications/Figures/figure-02.R` | `output/figures/figure2a.png` | Section [x] |
-| Figure 2b | Density test at the cutoff | `Replications/Figures/figure-02.R` | `output/figures/figure2b.png` | Section [x] |
-| Figure 3 | Covariate balance around the cutoff | `Replications/Figures/figure-03.R` | `output/figures/figure3.png` | Section [x] |
-| Figure 4 | RD plots of high school completion, women and men, 2000 and 1990 | `Replications/Figures/figure-04.R` | `output/figures/figure4.png` | Section [x] |
-| Extension 1 | [content] | `Extentions/Extension_01.R` | `output/[file]` | Section [x] |
-| Extension 2 | [content] | `Extentions/extension_02.py` | `output/[file]` | Section [x] |
+| Table 1 | Descriptive statistics | `replications/tables/table-01.R` | `output/tables/[file]` | Section [x] |
+| Table 2 | [content] | `replications/tables/table-02.R` | `output/tables/[file]` | Section [x] |
+| Table 3 | [content] | `replications/tables/table-03.R` | `output/tables/[file]` | Section [x] |
+| Table 7 | [content] | `replications/tables/table-07.R` | `output/tables/[file]` | Section [x] |
+| Figure 1 | Islamic win margin and Islamic vote share in 1994 | `replications/figures/figure-01.R` | `output/figures/figure1.png` | Section [x] |
+| Figure 2a | Global histogram of the Islamic win margin | `replications/figures/figure-02.R` | `output/figures/figure2a.png` | Section [x] |
+| Figure 2b | Density test at the cutoff | `replications/figures/figure-02.R` | `output/figures/figure2b.png` | Section [x] |
+| Figure 3 | Covariate balance around the cutoff | `replications/figures/figure-03.R` | `output/figures/figure3.png` | Section [x] |
+| Figure 4 | RD plots of high school completion, women and men, 2000 and 1990 | `replications/figures/figure-04.R` | `output/figures/figure4.png` | Section [x] |
+| Extension 1 | [content] | `extentions/extension_01.R` | `output/[file]` | Section [x] |
+| Extension 2 | [content] | `extentions/extension_02.py` | `output/[file]` | Section [x] |
 
 ## Notes on the replication
 
