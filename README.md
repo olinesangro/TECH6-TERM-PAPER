@@ -22,7 +22,6 @@ The write-up (PDF) discusses the results. This README explains how to reproduce 
 
 1. Clone or download this repository.
 2. Open TECH6-TERM-PAPER.Rproj in RStudio.
-3. Place regdata0.dta in the project root folder, next to run_all.R.
 4. Run: source("run_all.R")
 
 When the run is finished, the console prints
@@ -31,7 +30,7 @@ Tables are saved to `output/tables/` and figures to `output/figures/`. The folde
 
 ## Good to know before running
 
-- **Working directory:** all paths are relative to the project root. If the scripts cannot find `regdata0.dta` or `Replications/setup.R`, the project was most likely not opened through the `.Rproj` file. In RStudio, use *Session → Set Working Directory → To Project Directory*.
+- **Working directory:** all paths are relative to the project root. If the scripts cannot find `regdata0.dta` or `replications/setup.R`, the project was most likely not opened through the `.Rproj` file. In RStudio, use *Session → Set Working Directory → To Project Directory*.
 - **Running single scripts:** every script loads `Replications/setup.R` itself, so any table or figure can be run on its own without running `run_all.R` first.
 - **Python extension:** Extension 2 is written in Python. This requires a working Python installation with the packages listed.
 - **Runtime:** Figures 3 and 4 take the longest, because the bandwidth and the local linear fits are computed separately for every panel.
@@ -48,14 +47,14 @@ Tables are saved to `output/tables/` and figures to `output/figures/`. The folde
 
 - R 4.6.1 and RStudio 2026.09.0 (build 174).
 - R packages: `tidyverse`, `estimatr`, `fixest`, `causaldata`, `MatchIt`, `cobalt`,
-  `rdrobust`, `rddensity`, `haven`, `patchwork`, `flextable`, `reticulate`
+  `rdrobust`, `rddensity`, `haven`, `patchwork`, `flextable`
 - Python 3.12.4 with pandas, numpy, matplotlib, scikit-learn (Extension 2 only)
 
 Install the R packages once with:
 
 ```r
 install.packages(c("tidyverse", "estimatr", "fixest", "causaldata", "MatchIt", "cobalt",
-                   "rdrobust", "rddensity", "haven", "patchwork", "flextable", "reticulate"))
+                   "rdrobust", "rddensity", "haven", "patchwork", "flextable"))
 ```
 Install the Python packages with:
 
@@ -93,17 +92,17 @@ TECH6-TERM-PAPER/
 
 | Result | Content | Script | Output file | Write-up |
 |--------|---------|--------|-------------|----------|
-| Table 1 | Descriptive statistics | `replications/tables/table-01.R` | `output/tables/[file]` | Section [x] |
-| Table 2 | [content] | `replications/tables/table-02.R` | `output/tables/[file]` | Section [x] |
-| Table 3 | [content] | `replications/tables/table-03.R` | `output/tables/[file]` | Section [x] |
-| Table 7 | [content] | `replications/tables/table-07.R` | `output/tables/[file]` | Section [x] |
+| Table 1 | Summary statistics, Islamic vs. secular municipalities | `replications/tables/table-01.R` | `output/tables/table1.csv, table1.docx` | Section [x] |
+| Table 2 | Main RD estimates, high school completion | `replications/tables/table-02.R` | `output/tables/table2.csv, table2.docx`| Section [x] |
+| Table 3 | Robustness to bandwidth and polynomial order, women and men| `replications/tables/table-03.R` | `output/tables/table3.csv, table3.docx` | Section [x] |
+| Table 7 | Long-run outcomes in 2011, global OLS and local linear RD | `replications/tables/table-07.R` | `output/tables/table7.csv, table7.docx` | Section [x] |
 | Figure 1 | Islamic win margin and Islamic vote share in 1994 | `replications/figures/figure-01.R` | `output/figures/figure1.png` | Section [x] |
 | Figure 2a | Global histogram of the Islamic win margin | `replications/figures/figure-02.R` | `output/figures/figure2a.png` | Section [x] |
 | Figure 2b | Density test at the cutoff | `replications/figures/figure-02.R` | `output/figures/figure2b.png` | Section [x] |
 | Figure 3 | Covariate balance around the cutoff | `replications/figures/figure-03.R` | `output/figures/figure3.png` | Section [x] |
 | Figure 4 | RD plots of high school completion, women and men, 2000 and 1990 | `replications/figures/figure-04.R` | `output/figures/figure4.png` | Section [x] |
-| Extension 1 | [content] | `extentions/extension_01.R` | `output/[file]` | Section [x] |
-| Extension 2 | [content] | `extentions/extension_02.py` | `output/[file]` | Section [x] |
+| Extension 1 | Matching near and far from the cutoff, with placebo | `extentions/extension_01.R` | printed to console | Section [x] |
+| Extension 2 | Ridge/Lasso, predicted untreated outcomes | `extentions/extension_02.py` | printed to console | Section [x] |
 
 ## Notes on the replication
 
