@@ -26,7 +26,6 @@ The write-up (PDF) discusses the results. This README explains how to reproduce 
 
 1. Clone or download this repository.
 2. Open `TECH6-TERM-PAPER.Rproj` in RStudio.
-3. Make sure `regdata0.dta` is in the project root folder, next to `run_all.R`.
 4. Run: `source("run_all.R")`
 
 When the run is finished, the console prints
