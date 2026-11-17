@@ -23,7 +23,9 @@ complete_case_vars = [
     'merkezi', 'merkezp', 'subbuyuk',
 ]
 
-# Narrower list: pre-treatment-only predictors the model is allowed to see
+# Pre-treatment predictors the model is allowed to see. Metro center (buyuk)
+# is left out: only 9 of the 2,314 secular training municipalities are metro
+# centers, too few for the model to learn from.
 vars = [
     'vshr_islam1994', 'partycount', 'lpop1994',
     'merkezi', 'merkezp', 'subbuyuk',
