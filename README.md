@@ -35,8 +35,8 @@ automatically if they do not exist.
 
 **Running the extensions** (from the project root, after the steps above):
 
-- Extension 1: `source("extentions/extension_01.R")`
-- Extension 2: `python extentions/extension_02.py`
+- Extension 1: `source("extensions/extention_01.R")`
+- Extension 2: `python extensions/extension_02.py`
 
 ## Good to know before running
 
