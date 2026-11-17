@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # RUN ALL: regenerates every table and figure from regdata0.dta
-# Open TECH6-EXAM-PROJECT.Rproj, then run: source("run_all.R")
+# Open TECH6-TERM-PROJECT.Rproj, then run: source("run_all.R")
 #-------------------------------------------------------------------------------
 
 # Start from an empty workspace, so nothing old is used by mistake
