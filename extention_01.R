@@ -14,8 +14,9 @@ ctrl_vars <- c("vshr_islam1994", "partycount", "lpop1994",
 df_cc <- df_ext |>
   drop_na(all_of(ctrl_vars))
 
+# Sample size before and after dropping missing values
 print(c(nrow(df), nrow(df_cc)))
-h <- 0.2398
+h <- 0.2398   # IK bandwidth for women from the paper, used in the RD-by-hand comparison
 
 
 # By-hand diagnostic (does margin still predict education within each side of cutoff?)
@@ -53,8 +54,11 @@ etable(r1, r2, r3, r4, keep = "iwm94",
 
 
 # Defining near- and far-window comparisons
+# Near: Islamic wins by less than 10 pp. Far: wins by 10-30 pp.
+# The windows do not overlap, so no municipality is in both groups.
+# Both are compared with the same Islamic losers (margin -0.5 to 0)
 near_data <- df_cc |>
-  filter((iwm94 > -0.5 & iwm94 < 0) | (iwm94 > 0 & iwm94 < h)) |>
+  filter((iwm94 > -0.5 & iwm94 < 0) | (iwm94 > 0 & iwm94 < 0.1)) |>
   mutate(treat = as.integer(iwm94 > 0))
 
 far_data <- df_cc |>
@@ -88,7 +92,7 @@ far_data |> group_by(treat) |> summarise(mean_p = mean(pscore), median_p = media
 ggplot(near_data, aes(x = pscore, fill = factor(treat))) +
   geom_histogram(aes(y = after_stat(density)),
                  bins = 50, alpha = 0.6, position = "identity") +
-  labs(title = "Propensity-score overlap: near Islamic wins vs Islamic losses",
+  labs(title = "Propensity-score overlap: near Islamic wins (0-10 pp) vs Islamic losses",
        x = "estimated propensity score", fill = "treat")
 
 ggplot(far_data, aes(x = pscore, fill = factor(treat))) +
@@ -121,10 +125,10 @@ summary(m_near)
 love.plot(m_near, abs = TRUE, thresholds = 0.1)
 md_near <- match.data(m_near)
 
-match_near   <- feols(hischshr1520f ~ treat, data = md_near, cluster = ~province_pre)
+match_near   <- feols(hischshr1520f ~ treat, data = md_near, cluster = ~pcode)
 match_near_x <- feols(hischshr1520f ~ treat + vshr_islam1994 + partycount + lpop1994 +
                         merkezi + merkezp + subbuyuk + buyuk,
-                      data = md_near, cluster = ~province_pre)
+                      data = md_near, cluster = ~pcode)
 
 m_far <- matchit(treat ~ vshr_islam1994 + partycount + lpop1994 +
                    merkezi + merkezp + subbuyuk + buyuk,
@@ -133,10 +137,10 @@ summary(m_far)
 love.plot(m_far, abs = TRUE, thresholds = 0.1)
 md_far <- match.data(m_far)
 
-match_far   <- feols(hischshr1520f ~ treat, data = md_far, cluster = ~province_pre)
+match_far   <- feols(hischshr1520f ~ treat, data = md_far, cluster = ~pcode)
 match_far_x <- feols(hischshr1520f ~ treat + vshr_islam1994 + partycount + lpop1994 +
                        merkezi + merkezp + subbuyuk + buyuk,
-                     data = md_far, cluster = ~province_pre)
+                     data = md_far, cluster = ~pcode)
 
 etable(match_near, match_near_x, match_far, match_far_x, keep = "treat",
        headers = c("Near", "Near + X", "Far", "Far + X"))
@@ -156,23 +160,23 @@ summary(m_pl)
 love.plot(m_pl, abs = TRUE, thresholds = 0.1)
 md_pl <- match.data(m_pl)
 
-match_pl   <- feols(hischshr1520f ~ treat, data = md_pl, cluster = ~province_pre)
+match_pl   <- feols(hischshr1520f ~ treat, data = md_pl, cluster = ~pcode)
 match_pl_x <- feols(hischshr1520f ~ treat + vshr_islam1994 + partycount + lpop1994 +
                       merkezi + merkezp + subbuyuk + buyuk,
-                    data = md_pl, cluster = ~province_pre)
+                    data = md_pl, cluster = ~pcode)
 
 etable(match_pl, match_pl_x, keep = "treat", headers = c("Placebo", "Placebo + X"))
 
 
 # Baseline comparisons (naive OLS, OLS+X+FE, RD by hand)
-ols_naive <- feols(hischshr1520f ~ i94, data = df_cc, cluster = ~province_pre)
+ols_naive <- feols(hischshr1520f ~ i94, data = df_cc, cluster = ~pcode)
 ols_ctrl  <- feols(hischshr1520f ~ i94 + vshr_islam1994 + partycount + lpop1994 +
                      merkezi + merkezp + subbuyuk + buyuk | prov81,
-                   data = df_cc, cluster = ~province_pre)
+                   data = df_cc, cluster = ~pcode)
 
 rd_by_hand <- feols(hischshr1520f ~ i94 + iwm94 + iwm94:i94,
                     data = df_cc |> filter(abs(iwm94) < h),
-                    cluster = ~province_pre)
+                    cluster = ~pcode)
 
 etable(ols_naive, ols_ctrl, rd_by_hand, keep = "i94",
        headers = c("Naive OLS", "OLS + X + FE", "RD by hand"))
@@ -183,7 +187,7 @@ results <- tibble(
   estimate = c("Naive OLS",
                "OLS + controls + FE",
                "RD at cutoff",
-               "Matching: near wins",
+               "Matching: near wins (0-10 pp)",
                "Matching: far wins (10-30 pp)",
                "Placebo (no one treated)"),
   coef = c(coef(ols_naive)["i94"], coef(ols_ctrl)["i94"], coef(rd_by_hand)["i94"],
@@ -217,8 +221,7 @@ md_far_cal <- match.data(m_far_cal)
 
 match_far_cal_x <- feols(hischshr1520f ~ treat + vshr_islam1994 + partycount + lpop1994 +
                            merkezi + merkezp + subbuyuk + buyuk,
-                         data = md_far_cal, weights = ~weights, cluster = ~province_pre)
+                         data = md_far_cal, weights = ~weights, cluster = ~pcode)
 
 etable(match_far_x, match_far_cal_x, keep = "treat",
-       headers = c("Far: trimmed, class workflow", "Far: caliper + replacement"))
-
+       headers = c("Far: nearest neighbour", "Far: caliper + replacement"))

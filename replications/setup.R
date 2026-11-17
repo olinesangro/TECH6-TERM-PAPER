@@ -1,9 +1,9 @@
 #--------------------------------------------------------------
-# SETUP: shared by every table, figure and extension
-# Each script starts with source("Replications/setup.R")
+# SETUP: shared by every table, figure and extension 1
+# Each script starts with source("replications/setup.R")
 #--------------------------------------------------------------
 
-# The necessairy packages
+# The necessary packages
 library(tidyverse)
 library(estimatr)
 library(fixest)

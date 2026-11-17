@@ -19,11 +19,8 @@ fig1 <- ggplot(df_matched, aes(x = vshr_islam1994, y = iwm94)) +
         axis.text.x = element_text(size = 10)) +
   scale_x_continuous(limits = c(0, 0.75), breaks = seq(0, 0.75, by = 0.25), expand = c(0.02, 0), labels = scales::label_number(drop0trailing=TRUE)) +
   scale_y_continuous(limits = c(-1, 0.6), breaks = seq(-1, 0.5, by = 0.5), expand = c(0.02, 0), labels = scales::label_number(drop0trailing=TRUE)) + 
-  labs(title= "Figure 1. Islamic win margin and Islamic vote share in 1994", 
-       x = "Islamic vote share", 
+  labs(x = "Islamic vote share", 
        y = "Islamic win margin")
-
-nrow(df_matched)
 
 # Save the figure in the output folder
 ggsave("output/figures/figure1.png", plot = fig1, width = 8, height = 6, dpi = 300)

@@ -60,9 +60,6 @@ table2_panel <- function(dat) {
 panel_women <- table2_panel(women)
 panel_men   <- table2_panel(men)
 
-coeftable(panel_women[["(4)"]])["i94", ]
-
-
 # Panel C, is the effect different for women and men, one regression for both genders
 # where every coefficient can differ by gender
 # fem:i94 = effect for women minus effect for men, its p-value tests if they are equal
@@ -90,7 +87,8 @@ gender <- list(
                 data = stack, subset = ~ abs(iwm94) < h_enr, cluster = ~pcode)
 )
 
-# Checking if it is the same number
+#Check: the women − men difference from the stacked regression
+# equals the difference between the separate Panel A and B estimates
 coef(gender[["(4)"]])["fem:i94"]
 coef(panel_women[["(4)"]])["i94"] - coef(panel_men[["(4)"]])["i94"]
 
@@ -104,11 +102,6 @@ sur_pvalue <- function(fit) {
 }
 panelC <- sapply(gender, sur_pvalue)
 round(panelC, 3)
-
-# rdrobust check, col (3) with uniform kernel
-#summary(rdrobust(women$y, women$iwm94, c = 0, h = h_ik["women"],
-#                 kernel = "uniform", cluster = women$pcode))
-
 
 # Fixing the table layout
 bw_used <- function(h, h_enr) c(1, 1, h, h, h / 2, h * 2, h, h, h_enr)
