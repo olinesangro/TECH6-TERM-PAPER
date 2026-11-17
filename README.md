@@ -93,8 +93,8 @@ TECH6-TERM-PAPER/
 │   ├── setup.R                # Packages, data, analysis sample, controls and shared helpers
 │   ├── tables/                # table-01.R, table-02.R, table-03.R, table-07.R
 │   └── figures/               # figure-01.R, figure-02.R, figure-03.R, figure-04.R
-├── extentions/
-│   ├── extension_01.R         # Extension 1: matching (R)
+├── extensions/
+│   ├── extention_01.R         # Extension 1: matching (R)
 │   └── extension_02.py        # Extension 2: machine learning (Python)
 └── output/
     ├── tables/                # Generated tables
