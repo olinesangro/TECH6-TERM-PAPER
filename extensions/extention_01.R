@@ -96,11 +96,14 @@ ggplot(near_data, aes(x = pscore, fill = factor(treat))) +
   labs(title = "Propensity-score overlap: near Islamic wins (0-10 pp) vs Islamic losses",
        x = "estimated propensity score", fill = "treat")
 
-ggplot(far_data, aes(x = pscore, fill = factor(treat))) +
+# Figure 5 in the paper: overlap in the far window
+fig5 <- ggplot(far_data, aes(x = pscore, fill = factor(treat))) +
   geom_histogram(aes(y = after_stat(density)),
                  bins = 50, alpha = 0.6, position = "identity") +
   labs(title = "Propensity-score overlap: far Islamic wins (10-30 pp) vs Islamic losses",
        x = "estimated propensity score", fill = "treat")
+fig5
+ggsave("output/figures/ext1_fig5_overlap_far.png", fig5, width = 8, height = 5, dpi = 300)
 
 
 # Trim for common support - drop towns with a propensity score outside 
@@ -124,7 +127,11 @@ m_near <- matchit(treat ~ vshr_islam1994 + partycount + lpop1994 +
                     merkezi + merkezp + subbuyuk + buyuk,
                   data = near_trim, method = "nearest", distance = "glm")
 summary(m_near)
-love.plot(m_near, abs = TRUE, thresholds = 0.1, binary = "std")
+# Figure 6 in the paper: covariate balance in the near window.
+# binary = "std" puts the dummies on the same standardised scale as the rest
+fig6 <- love.plot(m_near, abs = TRUE, thresholds = 0.1, binary = "std")
+fig6
+ggsave("output/figures/ext1_fig6_love_near.png", fig6, width = 8, height = 5, dpi = 300)
 md_near <- match.data(m_near)
 
 match_near   <- feols(hischshr1520f ~ treat, data = md_near, cluster = ~pcode)
@@ -136,7 +143,7 @@ m_far <- matchit(treat ~ vshr_islam1994 + partycount + lpop1994 +
                    merkezi + merkezp + subbuyuk + buyuk,
                  data = far_trim, method = "nearest", distance = "glm")
 summary(m_far)
-love.plot(m_far, abs = TRUE, thresholds = 0.1)
+love.plot(m_far, abs = TRUE, thresholds = 0.1, binary = "std")
 md_far <- match.data(m_far)
 
 match_far   <- feols(hischshr1520f ~ treat, data = md_far, cluster = ~pcode)
@@ -159,7 +166,7 @@ m_pl <- matchit(treat ~ vshr_islam1994 + partycount + lpop1994 +
                   merkezi + merkezp + subbuyuk + buyuk,
                 data = placebo, method = "nearest", distance = "glm")
 summary(m_pl)
-love.plot(m_pl, abs = TRUE, thresholds = 0.1)
+love.plot(m_pl, abs = TRUE, thresholds = 0.1, binary = "std")
 md_pl <- match.data(m_pl)
 
 match_pl   <- feols(hischshr1520f ~ treat, data = md_pl, cluster = ~pcode)
@@ -202,12 +209,15 @@ results <- tibble(
 
 results
 
-ggplot(results, aes(x = coef, y = fct_rev(fct_inorder(estimate)))) +
+# Figure 7 in the paper: all six estimates with 95% confidence intervals
+fig7 <- ggplot(results, aes(x = coef, y = fct_rev(fct_inorder(estimate)))) +
   geom_vline(xintercept = 0, linetype = "dashed") +
   geom_pointrange(aes(xmin = lo, xmax = hi)) +
   labs(title = "Does the effect hold away from the cutoff?",
        x = "effect of Islamic mayor on female high school share (95% CI)",
        y = NULL)
+fig7
+ggsave("output/figures/ext1_fig7_estimates.png", fig7, width = 8, height = 5, dpi = 300)
 
 
 # Robustness check (caliper + replacement, far window)
@@ -218,7 +228,7 @@ m_far_cal <- matchit(treat ~ vshr_islam1994 + partycount + lpop1994 +
                      data = far_trim, method = "nearest", distance = "glm",
                      link = "linear.logit", replace = TRUE, caliper = 0.2)
 summary(m_far_cal)
-love.plot(m_far_cal, abs = TRUE, thresholds = 0.1)
+love.plot(m_far_cal, abs = TRUE, thresholds = 0.1, binary = "std")
 md_far_cal <- match.data(m_far_cal)
 
 match_far_cal_x <- feols(hischshr1520f ~ treat + vshr_islam1994 + partycount + lpop1994 +
