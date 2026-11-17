@@ -5,6 +5,11 @@ source("replications/setup.R")
 
 nrow(df_matched)
 
+# Table 1 only shows these 13 variables, so we define them here also. 
+vars <- c("hischshr1520f", "hischshr1520m", "i94", "vshr_islam1994",
+          "partycount", "lpop1994", "ageshr19", "ageshr60", "sexr",
+          "shhs", "merkezi", "merkezp", "subbuyuk")
+
 # Readable row labels, in the same order as vars from the setup-file
 labels <- c("Female high school share, age 15–20",
             "Male high school share, age 15–20",
@@ -58,6 +63,14 @@ table1 <- table1 |>
          p    = balance[, "p"])
 
 
+# Star levels for Table 1 only
+stars_t1 <- function(p) {
+  case_when(is.na(p)  ~ "",
+            p < 0.001 ~ "***",
+            p < 0.01  ~ "**",
+            p < 0.05  ~ "*",
+            TRUE      ~ "")
+}
 
 # Fixing the paper layout
 # Odd rows with means, and the difference with stars
@@ -67,7 +80,7 @@ mean_rows <- table1 |>
             all     = f3(all_mean),
             islamic = f3(islamic_mean),
             secular = f3(secular_mean),
-            diff    = paste0(f3(diff), stars(p)))
+            diff    = paste0(f3(diff), stars_t1(p)))
 
 # Even rows with SDs, and the SE of the difference
 # The SE is left blank when it is zero (the Islamic mayor row)
@@ -108,10 +121,9 @@ notes <- paste(
   "municipalities with a 1994 mayoral election result and non-missing values on",
   "all variables in the table. Columns (1)–(3) report means with standard",
   "deviations in parentheses. Column (4) reports the difference in means",
-  "(Islamic − secular) with classical standard errors in parentheses. Stars",
-  "are based on these standard errors and differ from the original table for",
-  "number of parties (** in Meyersson, 2014) and district center (no star in the",
-  "original). *** p<0.01, ** p<0.05, * p<0.10."
+  "(Islamic − secular) with classical standard errors in parentheses.",
+  "As in the author's code, stars for this table use the levels",
+  "*** p<0.001, ** p<0.01, * p<0.05."
 )
 
 # Saving the table, as a csv file, and making it into a word format,
