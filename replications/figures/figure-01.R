@@ -22,7 +22,5 @@ fig1 <- ggplot(df_matched, aes(x = vshr_islam1994, y = iwm94)) +
   labs(x = "Islamic vote share", 
        y = "Islamic win margin")
 
-nrow(df_matched)
-
 # Save the figure in the output folder
 ggsave("output/figures/figure1.png", plot = fig1, width = 8, height = 6, dpi = 300)
