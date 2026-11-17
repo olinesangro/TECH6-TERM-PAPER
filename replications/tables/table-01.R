@@ -5,12 +5,15 @@ source("replications/setup.R")
 
 nrow(df_matched)
 
-# Table 1 only shows these 13 variables, so we define them here also. 
-vars <- c("hischshr1520f", "hischshr1520m", "i94", "vshr_islam1994",
-          "partycount", "lpop1994", "ageshr19", "ageshr60", "sexr",
-          "shhs", "merkezi", "merkezp", "subbuyuk")
+# Variables shown in Table 1. setup.R's vars also holds the 81 province
+# dummies (used only to define the sample), so Table 1 keeps its own list
+t1_vars <- c("hischshr1520f", "hischshr1520m",
+             "i94",
+             "vshr_islam1994", "partycount",
+             "lpop1994", "ageshr19", "ageshr60", "sexr", "shhs",
+             "merkezi", "merkezp", "subbuyuk")
 
-# Readable row labels, in the same order as vars from the setup-file
+# Readable row labels, in the same order as t1_vars
 labels <- c("Female high school share, age 15–20",
             "Male high school share, age 15–20",
             "Islamic mayor in 1994",
@@ -29,16 +32,16 @@ labels <- c("Female high school share, age 15–20",
 islamic <- df_matched |> filter(i94 == 1)   
 secular <- df_matched |> filter(i94 == 0)   
 
-# sapply() runs mean/sd on every column in vars
+# sapply() runs mean/sd on every column in t1_vars
 table1 <- tibble(
-  variable     = vars,
+  variable     = t1_vars,
   label        = labels,
-  all_mean     = sapply(df_matched[vars], mean),
-  all_sd       = sapply(df_matched[vars], sd),
-  islamic_mean = sapply(islamic[vars], mean),
-  islamic_sd   = sapply(islamic[vars], sd),
-  secular_mean = sapply(secular[vars], mean),
-  secular_sd   = sapply(secular[vars], sd)
+  all_mean     = sapply(df_matched[t1_vars], mean),
+  all_sd       = sapply(df_matched[t1_vars], sd),
+  islamic_mean = sapply(islamic[t1_vars], mean),
+  islamic_sd   = sapply(islamic[t1_vars], sd),
+  secular_mean = sapply(secular[t1_vars], mean),
+  secular_sd   = sapply(secular[t1_vars], sd)
 )
 
 
@@ -55,7 +58,7 @@ diff_test <- function(x, d) {
   c(diff = diff, se = se, p = p)
 }
 
-balance <- t(sapply(vars, function(v) diff_test(df_matched[[v]], df_matched$i94)))
+balance <- t(sapply(t1_vars, function(v) diff_test(df_matched[[v]], df_matched$i94)))
 
 table1 <- table1 |>
   mutate(diff = balance[, "diff"],
@@ -114,16 +117,15 @@ table1_paper <- bind_rows(group_rows, mean_rows, sd_rows, obs_row) |>
 
 print(table1_paper, n = Inf, width = Inf)
 
-
-# Notes describing the sample and the two stars that differ
 notes <- paste(
   "Notes: Sample of", formatC(nrow(df_matched), format = "d", big.mark = ","),
   "municipalities with a 1994 mayoral election result and non-missing values on",
   "all variables in the table. Columns (1)–(3) report means with standard",
   "deviations in parentheses. Column (4) reports the difference in means",
   "(Islamic − secular) with classical standard errors in parentheses.",
-  "As in the author's code, stars for this table use the levels",
-  "*** p<0.001, ** p<0.01, * p<0.05."
+  "Stars follow the levels used in the author's code (*** p<0.001,",
+  "** p<0.01, * p<0.05); the published table note states 1, 5 and 10",
+  "percent, which does not match the stars shown."
 )
 
 # Saving the table, as a csv file, and making it into a word format,
