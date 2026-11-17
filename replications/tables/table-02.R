@@ -60,9 +60,6 @@ table2_panel <- function(dat) {
 panel_women <- table2_panel(women)
 panel_men   <- table2_panel(men)
 
-coeftable(panel_women[["(4)"]])["i94", ]
-
-
 # Panel C, is the effect different for women and men, one regression for both genders
 # where every coefficient can differ by gender
 # fem:i94 = effect for women minus effect for men, its p-value tests if they are equal
