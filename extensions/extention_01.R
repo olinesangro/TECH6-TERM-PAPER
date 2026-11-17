@@ -14,6 +14,7 @@ ctrl_vars <- c("vshr_islam1994", "partycount", "lpop1994",
 df_cc <- df_ext |>
   drop_na(all_of(ctrl_vars))
 
+# Sample size before and after dropping missing values
 print(c(nrow(df), nrow(df_cc)))
 h <- 0.2398
 
@@ -222,5 +223,5 @@ match_far_cal_x <- feols(hischshr1520f ~ treat + vshr_islam1994 + partycount + l
                          data = md_far_cal, weights = ~weights, cluster = ~province_pre)
 
 etable(match_far_x, match_far_cal_x, keep = "treat",
-       headers = c("Far: trimmed, class workflow", "Far: caliper + replacement"))
+       headers = c("Far: nearest neighbour", "Far: caliper + replacement"))
 
