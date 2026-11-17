@@ -124,7 +124,7 @@ m_near <- matchit(treat ~ vshr_islam1994 + partycount + lpop1994 +
                     merkezi + merkezp + subbuyuk + buyuk,
                   data = near_trim, method = "nearest", distance = "glm")
 summary(m_near)
-love.plot(m_near, abs = TRUE, thresholds = 0.1)
+love.plot(m_near, abs = TRUE, thresholds = 0.1, binary = "std")
 md_near <- match.data(m_near)
 
 match_near   <- feols(hischshr1520f ~ treat, data = md_near, cluster = ~pcode)
