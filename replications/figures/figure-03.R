@@ -1,9 +1,6 @@
 #--------------------------------------------------------------
-# FIGURE 3: Islamic win margin and Islamic vote share in 1994
+# FIGURE 3: Balanced covariate checks
 #--------------------------------------------------------------
-
-# Need patchwork package, so if it is not already installed, install it
-if (!requireNamespace("patchwork", quietly = TRUE)) install.packages("patchwork")
 
 source("replications/setup.R")
 
