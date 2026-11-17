@@ -26,7 +26,7 @@ The write-up (PDF) discusses the results. This README explains how to reproduce 
 
 1. Clone or download this repository.
 2. Open `TECH6-TERM-PAPER.Rproj` in RStudio.
-4. Run: `source("run_all.R")`
+3. Run: `source("run_all.R")`
 
 When the run is finished, the console prints
 `Done: tables are in output/tables, figures in output/figures`.
@@ -133,8 +133,7 @@ Figures 3 and 4 is defined inside `figure-03.R` and `figure-04.R`.
 - **Specification:** we follow the paper: its covariates, province fixed effects (81 provinces),
   standard errors clustered by province, and the Imbens–Kalyanaraman bandwidths reported in the
   paper (hard-coded in Tables 2 and 7).
-- **Table 1:** two significance stars differ from the original table (number of parties and
-  district center), because we use classical standard errors as described in the table notes.
+- **Table 1:** stars follow the levels used in the author's code (*** p<0.001, ** p<0.01, * p<0.05). The published table note states 1, 5 and 10 percent, which does not match the stars shown. All other tables use 1, 5 and 10 percent.
 - **Figures 3 and 4:** following the author's graph code, the dots are bin averages
   (8-percentage-point bins in Figure 3, 4-point bins in Figure 4) and the lines are local linear
   fits with an Epanechnikov kernel and fixed bandwidths (0.06 in Figure 3, 0.08 in Figure 4),
@@ -157,13 +156,3 @@ Figures 3 and 4 is defined inside `figure-03.R` and `figure-04.R`.
   predicts the untreated outcome for Islamic municipalities, and takes the effect as actual minus
   predicted. The random seed is fixed (`RANDOM_STATE = 1234`).
 - The extensions are not part of `run_all.R`.
-
-## Use of AI
-
-TODO (write this yourselves, 2–4 sentences): which tools were used and what for (for example
-learning the methods, debugging, checking code), and that the code and the text were written by
-the group.
-
-## Software environment
-
-TODO: paste the output of `sessionInfo()` here, in a code block, after a full run.
