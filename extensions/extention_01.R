@@ -18,34 +18,33 @@ print(c(nrow(df), nrow(df_cc)))
 h <- 0.2398
 
 
-# By-hand diagnostic (does margin still predict education within each side of 
-# cutoff?)
+# By-hand diagnostic (does margin still predict education within each side of cutoff?)
 left  <- df_cc |> filter(iwm94 > -0.5, iwm94 < 0)
 right <- df_cc |> filter(iwm94 >= 0,   iwm94 < 0.5)
 
 l1 <- feols(hischshr1520f ~ iwm94,
-            data = left, cluster = ~province_pre)
+            data = left, cluster = ~pcode)
 l2 <- feols(hischshr1520f ~ iwm94 + vshr_islam1994 + partycount + lpop1994 +
               merkezi + merkezp + subbuyuk + buyuk,
-            data = left, cluster = ~province_pre)
+            data = left, cluster = ~pcode)
 l3 <- feols(hischshr1520f ~ iwm94 + vshr_islam1994 + partycount + lpop1994 +
               merkezi + merkezp + subbuyuk + buyuk | prov81,
-            data = left, cluster = ~province_pre)
+            data = left, cluster = ~pcode)
 l4 <- feols(hischshr1520f ~ iwm94 + partycount + lpop1994 +
               merkezi + merkezp + subbuyuk + buyuk | prov81,
-            data = left, cluster = ~province_pre)
+            data = left, cluster = ~pcode)
 
 r1 <- feols(hischshr1520f ~ iwm94,
-            data = right, cluster = ~province_pre)
+            data = right, cluster = ~pcode)
 r2 <- feols(hischshr1520f ~ iwm94 + vshr_islam1994 + partycount + lpop1994 +
               merkezi + merkezp + subbuyuk + buyuk,
-            data = right, cluster = ~province_pre)
+            data = right, cluster = ~pcode)
 r3 <- feols(hischshr1520f ~ iwm94 + vshr_islam1994 + partycount + lpop1994 +
               merkezi + merkezp + subbuyuk + buyuk | prov81,
-            data = right, cluster = ~province_pre)
+            data = right, cluster = ~pcode)
 r4 <- feols(hischshr1520f ~ iwm94 + partycount + lpop1994 +
               merkezi + merkezp + subbuyuk + buyuk | prov81,
-            data = right, cluster = ~province_pre)
+            data = right, cluster = ~pcode)
 
 etable(l1, l2, l3, l4, keep = "iwm94",
        headers = c("Margin only", "+ X", "+ X + FE", "+ FE, no vote share"))
@@ -99,8 +98,7 @@ ggplot(far_data, aes(x = pscore, fill = factor(treat))) +
        x = "estimated propensity score", fill = "treat")
 
 
-# Trim for common support - drop towns with a propensity score outside 
-# (0.05, 0.95)
+# Trim for common support - drop towns with a propensity score outside (0.05, 0.95)
 near_trim <- near_data |> filter(pscore > 0.05, pscore < 0.95)
 far_trim  <- far_data  |> filter(pscore > 0.05, pscore < 0.95)
 
