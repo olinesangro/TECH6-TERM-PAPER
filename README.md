@@ -38,20 +38,6 @@ automatically if they do not exist.
 - Extension 1: `source("extensions/extention_01.R")`
 - Extension 2: `python extensions/extension_02.py`
 
-## Good to know before running
-
-- **Working directory:** all paths are relative to the project root. If the scripts cannot find
-  `regdata0.dta` or `replications/setup.R`, the project was most likely not opened through the
-  `.Rproj` file. In RStudio, use *Session → Set Working Directory → To Project Directory*.
-  Extension 2 also reads `regdata0.dta` from the working directory, so run it from the project root.
-- **Running single scripts:** every R script loads `replications/setup.R` itself, so any table or
-  figure can be run on its own without running `run_all.R` first.
-- **Runtime:** Figures 3 and 4 take the longest, because the local linear fit is computed on a
-  grid of 50 points for every panel and side of the cutoff.
-- **Warnings:** the console shows some warnings from `ggplot2` ("Removed rows containing
-  missing values"). These come from observations outside the axis limits, which were set to
-  match the paper's figures, and do not affect the results.
-
 ## Data
 
 | File | Description | Source |
@@ -65,21 +51,7 @@ automatically if they do not exist.
   `MatchIt`, `cobalt`, `rdrobust`, `rddensity`, `haven`, `patchwork`, `flextable`
 - Python 3.12.4 with `pandas`, `numpy`, `matplotlib`, `scikit-learn` (Extension 2 only)
 
-Install the R packages once with:
 
-```r
-install.packages(c("tidyverse", "estimatr", "fixest", "causaldata", "MatchIt", "cobalt",
-                   "rdrobust", "rddensity", "haven", "patchwork", "flextable"))
-```
-
-Install the Python packages with:
-
-```
-pip install pandas numpy matplotlib scikit-learn
-```
-
-The results were produced on macOS. Exact package versions are listed under Software
-environment at the bottom of this file.
 
 ## Repository structure
 
@@ -123,36 +95,3 @@ Figures 3 and 4 is defined inside `figure-03.R` and `figure-04.R`.
 | Extension 1 | Matching near and far from the cutoff: overlap, balance, placebo, comparison with OLS and RD | `extentions/extension_01.R` | Printed to the console and the RStudio Plots pane (not saved) |
 | Extension 2 | Ridge, Lasso and polynomial OLS trained on secular municipalities; predicted untreated outcomes | `extentions/extension_02.py` | Printed to the console (plots shown with `plt.show()`, not saved) |
 
-## Notes on the replication
-
-- **Sample:** Tables 1–3 and Figure 1 use the same sample, `df_matched`, defined in `setup.R` as
-  the 2,629 municipalities with non-missing values on all outcome, treatment and covariate
-  variables. Table 7 uses its own sample (2,338 municipalities, as in the paper). Figures 2a, 3
-  and 4 follow the author's graph code and use all municipalities with non-missing values on the
-  variables plotted.
-- **Specification:** we follow the paper: its covariates, province fixed effects (81 provinces),
-  standard errors clustered by province, and the Imbens–Kalyanaraman bandwidths reported in the
-  paper (hard-coded in Tables 2 and 7).
-- **Table 1:** stars follow the levels used in the author's code (*** p<0.001, ** p<0.01, * p<0.05). The published table note states 1, 5 and 10 percent, which does not match the stars shown. All other tables use 1, 5 and 10 percent.
-- **Figures 3 and 4:** following the author's graph code, the dots are bin averages
-  (8-percentage-point bins in Figure 3, 4-point bins in Figure 4) and the lines are local linear
-  fits with an Epanechnikov kernel and fixed bandwidths (0.06 in Figure 3, 0.08 in Figure 4),
-  estimated separately on each side of the cutoff. The grey lines are approximate 95% bands
-  (±2 standard errors).
-- **Figure 2b:** the density test uses `rddensity`, on municipalities with a win margin within
-  ±0.6; the estimate and standard error are printed below the figure. This differs from the
-  McCrary (2008) test used in the paper, so the numbers differ.
-
-## Notes on the extensions
-
-- **Extension 1 (matching):** uses only covariates measured before the 1994 election (Islamic
-  vote share, number of parties, log population, and the municipality-type indicators). The
-  2000-census variables are excluded because they may themselves be affected by Islamic rule.
-  The script compares Islamic winners with losers near the cutoff and 10–30 percentage points
-  from it, using propensity-score overlap, trimming at 0.05–0.95, nearest-neighbour matching,
-  love plots, a placebo test and a caliper robustness check.
-- **Extension 2 (machine learning):** trains polynomial OLS, Ridge and Lasso on secular
-  municipalities, chooses the polynomial degree and penalty with 5-fold cross-validation,
-  predicts the untreated outcome for Islamic municipalities, and takes the effect as actual minus
-  predicted. The random seed is fixed (`RANDOM_STATE = 1234`).
-- The extensions are not part of `run_all.R`.
