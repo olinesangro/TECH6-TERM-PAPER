@@ -22,7 +22,9 @@ df_t7 <- df |>
   drop_na(all_of(outcomes), i94, iwm94, pcode,
           vshr_islam1994, partycount, lpop1994, ageshr19, ageshr60, sexr, shhs,
           merkezi, merkezp, subbuyuk, buyuk)
-nrow(df_t7)    # paper: 2338
+
+# Check if it matches with paper, 2,338
+nrow(df_t7)
 
 # IK bandwidths, one per outcome. Unrounded, so the N matches the paper
 h_ik <- c(ahischshr15_19f = 0.2385, ahischshr15_19m = 0.1993,
