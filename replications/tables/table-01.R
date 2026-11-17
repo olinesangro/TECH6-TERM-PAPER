@@ -3,8 +3,6 @@
 #--------------------------------------------------------------
 source("replications/setup.R")
 
-nrow(df_matched)
-
 # Variables shown in Table 1. setup.R's vars also holds the 81 province
 # dummies (used only to define the sample), so Table 1 keeps its own list
 t1_vars <- c("hischshr1520f", "hischshr1520m",
